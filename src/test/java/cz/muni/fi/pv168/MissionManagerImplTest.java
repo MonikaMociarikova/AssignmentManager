@@ -1,8 +1,12 @@
 package cz.muni.fi.pv168;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -16,10 +20,27 @@ import static org.junit.Assert.*;
 public class MissionManagerImplTest {
 
     private MissionManagerImpl missionManager;
+    private DataSource dataSource;
 
     @Before
     public void setUp() throws Exception {
-        missionManager = new MissionManagerImpl();
+        BasicDataSource bds = new BasicDataSource();
+        bds.setUrl("jdbc:derby:memory:MissionManagerTest;create=true");
+        this.dataSource = bds;
+        //create new empty table before every test
+        try (Connection conn = bds.getConnection()) {
+            conn.prepareStatement("CREATE TABLE MISSION ("
+                    + "id LONG PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                    + "place VARCHAR(255),"
+                    + "completed CHAR(1)),").executeUpdate();
+        }
+        missionManager = new MissionManagerImpl(bds);    }
+
+    @After
+    public void tearDown() throws SQLException {
+        try (Connection con = dataSource.getConnection()) {
+            con.prepareStatement("DROP TABLE MISSION").executeUpdate();
+        }
     }
 
     @Test
@@ -33,7 +54,7 @@ public class MissionManagerImplTest {
         assertThat("Completed is not false.",mission.isCompleted(), is(equalTo(false)));
 
         Long missionId = mission.getId();
-        Mission loadedMission = missionManager.findMissionById(missionId);
+        Mission loadedMission = missionManager.getMission(missionId);
         //assertThat("Loaded mission differs from the saved one.",loadedMission,is(equalTo(mission)));
         assertDeepEquals(mission,loadedMission);
         assertThat("Mission and loaded mission is the same instance.",loadedMission,is(not(sameInstance(mission))));
@@ -48,7 +69,7 @@ public class MissionManagerImplTest {
         assertThat("Mission id is null.",mission.getId(), is(not(equalTo(null))));
 
         Long missionId = mission.getId();
-        Mission loadedMission = missionManager.findMissionById(missionId);
+        Mission loadedMission = missionManager.getMission(missionId);
         //assertThat("Loaded mission differs from the saved one.",loadedMission,is(equalTo(mission)));
         assertDeepEquals(mission,loadedMission);
         assertThat("Mission and loaded mission is the same instance.",loadedMission,is(not(sameInstance(mission))));
@@ -72,16 +93,11 @@ public class MissionManagerImplTest {
     }
 
 
-    @Test
+    @Test (expected = IllegalArgumentException.class)
     public void createMissionWithId() throws Exception {
         Mission mission = newMissionTwoParameters("Russia", false);
         mission.setId(1L);
-        try {
-            missionManager.createMission(mission);
-            fail("Should refuse assigned id.");
-        } catch (IllegalArgumentException ex) {
-
-        }
+        missionManager.createMission(mission);
     }
 
     @Test
@@ -95,17 +111,17 @@ public class MissionManagerImplTest {
         Long missionId = missionToUpdate.getId();
         missionToUpdate.setPlace("Czech");
         missionManager.updateMission(missionToUpdate);
-        missionToUpdate = missionManager.findMissionById(missionId);
+        missionToUpdate = missionManager.getMission(missionId);
         assertThat("Mission place was not changed.",missionToUpdate.getPlace(),is(equalTo("Czech")));
         assertThat("Mission completion was not changed.",missionToUpdate.isCompleted(),is(equalTo(false)));
 
         missionToUpdate.setCompleted(true);
         missionManager.updateMission(missionToUpdate);
-        missionToUpdate = missionManager.findMissionById(missionId);
+        missionToUpdate = missionManager.getMission(missionId);
         assertThat("Mission place was not changed.",missionToUpdate.getPlace(),is(equalTo("Czech")));
         assertThat("Mission completion was not changed.",missionToUpdate.isCompleted(),is(equalTo(true)));
 
-        assertDeepEquals(otherMission, missionManager.findMissionById(otherMission.getId()));
+        assertDeepEquals(otherMission, missionManager.getMission(otherMission.getId()));
     }
 
     @Test (expected = IllegalArgumentException.class)
@@ -141,51 +157,43 @@ public class MissionManagerImplTest {
         missionManager.createMission(mission1);
         missionManager.createMission(mission2);
 
-        assertNotNull(missionManager.findMissionById(mission1.getId()));
-        assertNotNull(missionManager.findMissionById(mission2.getId()));
+        assertNotNull(missionManager.getMission(mission1.getId()));
+        assertNotNull(missionManager.getMission(mission2.getId()));
 
         missionManager.deleteMission(mission1);
 
-        assertNull(missionManager.findMissionById(mission1.getId()));
-        assertNotNull(missionManager.findMissionById(mission2.getId()));
+        assertNull(missionManager.getMission(mission1.getId()));
+        assertNotNull(missionManager.getMission(mission2.getId()));
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void testDeleteNullMission() throws Exception{
         missionManager.deleteMission(null);
     }
-/*
-    @Test
-    public void testDeleteMissionWithWrongArguments() {
 
+    @Test (expected = IllegalArgumentException.class)
+    public void testDeleteMissionWithNullId() {
         Mission mission = newMissionTwoParameters("Germany",false);
-
-        try {
-            mission.setId(null);
-            missionManager.deleteMission(mission);
-            fail();
-        } catch (IllegalArgumentException ex) {
-            //OK
-        }
-
-        try {
-            mission.setId(1L);
-            missionManager.deleteMission(mission);
-            fail();
-        } catch (IllegalArgumentException ex) {
-            //OK
-        }
+        mission.setId(null);
+        missionManager.deleteMission(mission);
     }
-    */
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testDeleteMissionWithSetId() {
+        Mission mission = newMissionTwoParameters("Germany",false);
+        mission.setId(1L);
+        missionManager.deleteMission(mission);
+    }
+
     @Test
-    public void testFindMissionById() {
+    public void testGetMission() {
 
         //uz overene v createMission
         Mission mission = newMissionOneParameter("France");
         missionManager.createMission(mission);
 
         Long missionId = mission.getId();
-        Mission loadedMission = missionManager.findMissionById(missionId);
+        Mission loadedMission = missionManager.getMission(missionId);
 
         assertThat("",loadedMission,is(equalTo(mission)));
         assertDeepEquals(mission,loadedMission);

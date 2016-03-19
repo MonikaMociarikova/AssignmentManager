@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Created by MM on 14-Mar-16.
+ * Interface for mission manager
  */
 public interface MissionManager {
 
@@ -13,7 +14,7 @@ public interface MissionManager {
 
     void deleteMission(Mission mission) throws ServiceFailureException;
 
-    Mission findMissionById(Long id) throws ServiceFailureException;
+    Mission getMission(Long id) throws ServiceFailureException;
 
     List<Mission> findAllMissions() throws ServiceFailureException;
 
