@@ -46,7 +46,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("db connection problem", ex);
-            throw new ServiceFailureException("Error when retrieving all graves", ex);
+            throw new ServiceFailureException("Error when creating a mission", ex);
         }
 
     }
@@ -57,20 +57,20 @@ public class MissionManagerImpl implements MissionManager {
             //vracia mi to 1 kluc, takze ocakavam 1 stlpec
             if (keyRS.getMetaData().getColumnCount() != 1) {
                 throw new ServiceFailureException("Internal Error: Generated key"
-                        + "retriving failed when trying to insert grave " + mission
+                        + "retriving failed when trying to insert mission " + mission
                         + " - wrong key fields count: " + keyRS.getMetaData().getColumnCount());
             }
             Long result = keyRS.getLong(1); //tu mozeme pouzit aj string parameter getLong("nazov stlpca")
             //id musi byt unikatne, takze len 1 zaznam tam musi byt
             if (keyRS.next()) {
                 throw new ServiceFailureException("Internal Error: Generated key"
-                        + "retriving failed when trying to insert grave " + mission
+                        + "retriving failed when trying to insert mission " + mission
                         + " - more keys found");
             }
             return result;
         } else {
             throw new ServiceFailureException("Internal Error: Generated key"
-                    + "retriving failed when trying to insert grave " + mission
+                    + "retriving failed when trying to insert mission " + mission
                     + " - no key found");
         }
     }
@@ -98,7 +98,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("Database connection problem.",ex);
-            throw new ServiceFailureException("Error when retrieving all graves",ex);
+            throw new ServiceFailureException("Error when updating a mission",ex);
         }
 
     }
@@ -133,7 +133,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("Database connection problem.",ex);
-            throw new ServiceFailureException("Error when retrieving all graves",ex);
+            throw new ServiceFailureException("Error when deleting a mission",ex);
         }
     }
 
@@ -157,7 +157,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("Database connection problem",ex);
-            throw new ServiceFailureException("Error when retrieving all graves", ex);
+            throw new ServiceFailureException("Error when retrieving a mission", ex);
         }
     }
 
@@ -184,7 +184,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("db connection problem", ex);
-            throw new ServiceFailureException("Error when retrieving all graves", ex);
+            throw new ServiceFailureException("Error when retrieving all missions", ex);
         }
     }
 
@@ -201,7 +201,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("db connection problem", ex);
-            throw new ServiceFailureException("Error when retrieving all graves", ex);
+            throw new ServiceFailureException("Error when retrieving all missions", ex);
         }
     }
 
@@ -219,7 +219,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("db connection problem", ex);
-            throw new ServiceFailureException("Error when retrieving all graves", ex);
+            throw new ServiceFailureException("Error when retrieving all missions", ex);
         }
     }
 }
