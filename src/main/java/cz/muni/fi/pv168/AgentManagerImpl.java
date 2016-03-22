@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -112,7 +113,20 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        log.debug("Finding all missions"); //?????????
+        try (Connection conn = dataSource.getConnection()){
+            try (PreparedStatement st = conn.prepareStatement("SELECT id,name,born FROM agent")){
+                ResultSet rs = st.executeQuery();
+                List<Agent> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(resultSetToAgent(rs));
+                }
+                return result;
+            }
+        } catch (SQLException ex) {
+            log.error("db connection problem", ex);
+            throw new ServiceFailureException("Error when retrieving all agents", ex);
+        }
     }
 
     @Override
