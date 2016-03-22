@@ -114,7 +114,7 @@ public class MissionManagerImpl implements MissionManager {
             }
         } catch (SQLException ex) {
             log.error("Database connection problem.",ex);
-            throw new ServiceFailureException("Error when retrieving all graves",ex);
+            throw new ServiceFailureException("Error when retrieving all missions",ex);
         }
     }
 */

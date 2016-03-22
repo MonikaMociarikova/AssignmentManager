@@ -32,7 +32,7 @@ public class MissionManagerImplTest {
             conn.prepareStatement("CREATE TABLE MISSION ("
                     + "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
                     + "place VARCHAR(255),"
-                    + "completed CHAR(1))").executeUpdate();
+                    + "completed BOOLEAN)").executeUpdate();
         }
         missionManager = new MissionManagerImpl(bds);    }
 
@@ -216,7 +216,8 @@ public class MissionManagerImplTest {
         Collections.sort(expected, idComparator);
         Collections.sort(actual, idComparator);
 
-        assertThat("Expected and actual lists differ.", expected, is(equalTo(actual)));
+        //assertThat("Expected and actual lists differ.", expected, is(equalTo(actual)));
+        assertEquals(expected, actual);
         assertDepEquals(expected, actual);
     }
 
