@@ -39,11 +39,12 @@ public class AgentManagerImplTest {
         //create new empty table before every test
         try (Connection conn = bds.getConnection()) {
             conn.prepareStatement("CREATE TABLE agent ("
-                    + "id LONG PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                    + "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
                     + "name VARCHAR(255),"
-                    + "born DATE),").executeUpdate();
+                    + "born DATE)").executeUpdate();
         }
-        manager = new AgentManagerImpl(bds);    }
+        manager = new AgentManagerImpl(bds);
+    }
 
     @After
     public void tearDown() throws SQLException {
