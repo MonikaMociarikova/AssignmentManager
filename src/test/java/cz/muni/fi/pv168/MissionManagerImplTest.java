@@ -55,7 +55,7 @@ public class MissionManagerImplTest {
 
         Long missionId = mission.getId();
         Mission loadedMission = missionManager.getMission(missionId);
-        //assertThat("Loaded mission differs from the saved one.",loadedMission,is(equalTo(mission)));
+        assertThat("Loaded mission differs from the saved one.",loadedMission,is(equalTo(mission)));
         assertDeepEquals(mission,loadedMission);
         assertThat("Mission and loaded mission is the same instance.",loadedMission,is(not(sameInstance(mission))));
     }

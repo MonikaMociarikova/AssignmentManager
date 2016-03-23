@@ -113,7 +113,7 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
-        log.debug("Finding all missions"); //?????????
+        log.debug("Finding all missions");
         try (Connection conn = dataSource.getConnection()){
             try (PreparedStatement st = conn.prepareStatement("SELECT id,name,born FROM agent")){
                 ResultSet rs = st.executeQuery();
@@ -182,7 +182,7 @@ public class AgentManagerImpl implements AgentManager {
         //miesto indexu pouzivame nazov stlpca, je to prehladnejsie, pytame sa fciu konkretne nazov typu kt stlpec je
         agent.setId(rs.getLong("id"));
         agent.setName(rs.getString("name"));
-        agent.setBorn(rs.getDate("born").toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        agent.setBorn(rs.getDate("born").toLocalDate());
         return agent;
     }
 
