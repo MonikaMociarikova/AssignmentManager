@@ -102,25 +102,9 @@ public class MissionManagerImpl implements MissionManager {
         }
 
     }
-/* Long id
-    @Override
-    public void deleteMission(Long missionId) throws ServiceFailureException {
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("DELETE FROM mission WHERE id=?")){
-                st.setLong(1,missionId);
-                if (st.executeUpdate()!= 1) {
-                    throw new IllegalArgumentException("Cannot delete mission with id" + missionId);
-                }
-            }
-        } catch (SQLException ex) {
-            log.error("Database connection problem.",ex);
-            throw new ServiceFailureException("Error when retrieving all missions",ex);
-        }
-    }
-*/
 
     @Override
-    public void deleteMission(Mission mission) throws ServiceFailureException {
+    public void deleteMission(Mission mission) /*throws ServiceFailureException*/ {
         if (mission == null) {
             throw new IllegalArgumentException("Mission is null.");
         }
@@ -171,8 +155,8 @@ public class MissionManagerImpl implements MissionManager {
     }
 
     @Override
-    public List<Mission> findAllMissions() /*throws ServiceFailureException*/ {
-        log.debug("Finding all missions"); //?????????
+    public List<Mission> findAllMissions() throws ServiceFailureException {
+        log.debug("Finding all missions");
         try (Connection conn = dataSource.getConnection()){
             try (PreparedStatement st = conn.prepareStatement("SELECT id,place,completed FROM mission")){
                 ResultSet rs = st.executeQuery();

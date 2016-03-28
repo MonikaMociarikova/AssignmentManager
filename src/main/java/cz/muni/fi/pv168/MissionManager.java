@@ -8,6 +8,11 @@ import java.util.List;
  */
 public interface MissionManager {
 
+    /**
+     *
+     * @param mission
+     * @throws ServiceFailureException
+     */
     void createMission(Mission mission) throws ServiceFailureException;
 
     void updateMission(Mission mission) throws ServiceFailureException;

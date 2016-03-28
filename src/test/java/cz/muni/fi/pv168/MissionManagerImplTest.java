@@ -30,8 +30,8 @@ public class MissionManagerImplTest {
         //create new empty table before every test
         try (Connection conn = bds.getConnection()) {
             conn.prepareStatement("CREATE TABLE MISSION ("
-                    + "id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
-                    + "place VARCHAR(255),"
+                    + "id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                    + "place VARCHAR(255) NOT NULL ,"
                     + "completed BOOLEAN)").executeUpdate();
         }
         missionManager = new MissionManagerImpl(bds);    }
