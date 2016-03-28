@@ -1,5 +1,7 @@
 package cz.muni.fi.pv168;
 
+import java.util.Objects;
+
 /**
  * Created by MM on 14-Mar-16.
  */
@@ -52,7 +54,7 @@ public class Mission {
         return "Mission{" + "id=" + id + '}';
     }
 
-    @Override
+    /*@Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -72,5 +74,40 @@ public class Mission {
         int hash = 7;
         hash = 97 * hash + (this.id != null ? this.id.hashCode() : 0);
         return hash;
+    }*/
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + Objects.hashCode(this.id);
+        hash = 37 * hash + Objects.hashCode(this.place);
+        hash = 37 * hash + (this.completed ? 1 : 0);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Mission other = (Mission) obj;
+        if (this.completed != other.completed) {
+            return false;
+        }
+        if (!Objects.equals(this.place, other.place)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

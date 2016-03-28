@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +112,7 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
-        log.debug("Finding all missions");
+        log.debug("Finding all agents");
         try (Connection conn = dataSource.getConnection()){
             try (PreparedStatement st = conn.prepareStatement("SELECT id,name,born FROM agent")){
                 ResultSet rs = st.executeQuery();
