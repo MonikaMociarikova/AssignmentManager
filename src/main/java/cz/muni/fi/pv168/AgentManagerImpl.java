@@ -112,7 +112,7 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
-        log.debug("Finding all missions");
+        log.debug("Finding all agents");
         try (Connection conn = dataSource.getConnection()){
             try (PreparedStatement st = conn.prepareStatement("SELECT id,name,born FROM agent")){
                 ResultSet rs = st.executeQuery();
