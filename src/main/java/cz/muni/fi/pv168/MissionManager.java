@@ -1,5 +1,7 @@
 package cz.muni.fi.pv168;
 
+import cz.muni.fi.pv168.common.ServiceFailureException;
+
 import java.util.List;
 
 /**

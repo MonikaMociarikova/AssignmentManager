@@ -12,15 +12,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.sql.DataSource;
+
+import cz.muni.fi.pv168.common.ServiceFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  *
  * @author Matej Sojak 433294
  */
 public class AssignmentManagerImpl implements AssignmentManager {
+
     final static Logger log = LoggerFactory.getLogger(AssignmentManagerImpl.class);
     private final DataSource dataSource;
 
@@ -48,13 +50,20 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if (assignment.getTo().compareTo(assignment.getFrom()) < 0) {
             throw new IllegalArgumentException("Wrong time attibutes.");
         }
+        if (assignment.getAgent().getId() == null) {
+            throw new IllegalArgumentException("Assignment's agent id is null.");
+        }
+        if (assignment.getMission().getId() == null) {
+            throw new IllegalArgumentException("Assignment's mission id is null.");
+        }
+
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement st = conn.prepareStatement("INSERT INTO assignment (from,to,agentId,missionId) VALUES (?,?,?,?)",
+            try (PreparedStatement st = conn.prepareStatement("INSERT INTO assignment (starts,ends,agentId,missionId) VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
                 st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
-                st.setLong(3,assignment.getAgent().getId());
-                st.setLong(4,assignment.getMission().getId());
+                st.setLong(3, assignment.getAgent().getId());
+                st.setLong(4, assignment.getMission().getId());
                 int addedRows = st.executeUpdate();
                 if (addedRows != 1) {
                     throw new ServiceFailureException("Internal Error: more rows inserted when trying to insert assignment " + assignment);
@@ -103,20 +112,19 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if (assignment.getMission() == null) {
             throw new IllegalArgumentException("Assignment contains no mission.");
         }
-        if((assignment.getFrom()==null) || (assignment.getTo()==null)){
+        if ((assignment.getFrom() == null) || (assignment.getTo() == null)) {
             throw new IllegalArgumentException("Assignment contains no date boundary.");
         }
-        if(assignment.getFrom().isAfter(assignment.getTo())){
+        if (assignment.getFrom().isAfter(assignment.getTo())) {
             throw new IllegalArgumentException("Assignment contains wrong date boundaries.");
         }
 
-
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement st = conn.prepareStatement("UPDATE assignment SET from=?,to=?,agentId=?,missionId=? WHERE id=?")) {
+            try (PreparedStatement st = conn.prepareStatement("UPDATE assignment SET starts=?,ends=?,agentId=?,missionId=? WHERE id=?")) {
                 st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
                 st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
-                st.setLong(3,assignment.getAgent().getId());
-                st.setLong(4,assignment.getMission().getId());
+                st.setLong(3, assignment.getAgent().getId());
+                st.setLong(4, assignment.getMission().getId());
                 st.setLong(5, assignment.getId());
                 if (st.executeUpdate() != 1) {
                     throw new IllegalArgumentException("Cannot update assignment " + assignment);
@@ -133,32 +141,35 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if (assignment == null) {
             throw new IllegalArgumentException("Assignment is null.");
         }
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("DELETE FROM assignment WHERE id=?")){
-                st.setLong(1,assignment.getId());
-                if (st.executeUpdate()!= 1) {
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("DELETE FROM assignment WHERE id=?")) {
+                st.setLong(1, assignment.getId());
+                if (st.executeUpdate() != 1) {
                     throw new IllegalArgumentException("Cannot delete assignment " + assignment);
                 }
             }
         } catch (SQLException ex) {
-            log.error("Database connection problem.",ex);
-            throw new ServiceFailureException("Error when deleting an assignment",ex);
+            log.error("Database connection problem.", ex);
+            throw new ServiceFailureException("Error when deleting an assignment", ex);
         }
     }
 
     @Override
     public Assignment getAssignment(Long id) {
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("SELECT from,to,agentId,missionId FROM assignment WHERE id=? AND ? BETWEEN from AND to")){
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment WHERE id = ?")) {
                 st.setLong(1, id);
-                st.setDate(2, new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+
                 ResultSet rs = st.executeQuery();
                 if (rs.next()) {
                     Assignment assignment = resultSetToAssignment(rs);
                     if (rs.next()) {
                         throw new ServiceFailureException(
                                 "Internal error: More entities with the same id found "
-                                        + "(source id: " + id + ", found " + assignment + " and " + resultSetToAssignment(rs));
+                                + "(source id: " + id + ", found " + assignment + " and " + resultSetToAssignment(rs));
                     }
                     return assignment;
                 } else {
@@ -166,7 +177,7 @@ public class AssignmentManagerImpl implements AssignmentManager {
                 }
             }
         } catch (SQLException ex) {
-            log.error("Database connection problem",ex);
+            log.error("Database connection problem", ex);
             throw new ServiceFailureException("Error when retrieving a mission", ex);
         }
     }
@@ -174,8 +185,8 @@ public class AssignmentManagerImpl implements AssignmentManager {
     @Override
     public List<Assignment> findAllAssignments() {
         log.debug("Finding all assignments");
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("SELECT id,from,to,agentId,missionId FROM assignment")){
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment")) {
                 ResultSet rs = st.executeQuery();
                 List<Assignment> result = new ArrayList<>();
                 while (rs.next()) {
@@ -192,9 +203,9 @@ public class AssignmentManagerImpl implements AssignmentManager {
     @Override
     public List<Assignment> findAssignmentsOfAgent(Agent agent) {
         log.debug("Finding all assignments");
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("SELECT id,from,to,agentId,missionId FROM assignment WHERE agentId=?")){
-                st.setLong(1,agent.getId());
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment WHERE agentId=?")) {
+                st.setLong(1, agent.getId());
                 ResultSet rs = st.executeQuery();
                 List<Assignment> result = new ArrayList<>();
                 while (rs.next()) {
@@ -210,10 +221,13 @@ public class AssignmentManagerImpl implements AssignmentManager {
 
     @Override
     public List<Assignment> findAssignmentsOfMission(Mission mission) {
+        if (mission == null) {
+            throw new IllegalArgumentException("mission is null");
+        }
         log.debug("Finding all assignments");
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("SELECT id,from,to,agentId,missionId FROM assignment WHERE missionId=?")){
-                st.setLong(1,mission.getId());
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment WHERE missionId=?")) {
+                st.setLong(1, mission.getId());
                 ResultSet rs = st.executeQuery();
                 List<Assignment> result = new ArrayList<>();
                 while (rs.next()) {
@@ -241,9 +255,9 @@ public class AssignmentManagerImpl implements AssignmentManager {
     @Override
     public List<Assignment> findActualAssignmentOfAgent(Agent agent) {
         log.debug("Finding all assignments");
-        try (Connection conn = dataSource.getConnection()){
-            try (PreparedStatement st = conn.prepareStatement("SELECT id,from,to,agentId,missionId FROM assignment WHERE agentId=?")){
-                st.setLong(1,agent.getId());
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment WHERE agentId=?")) {
+                st.setLong(1, agent.getId());
                 ResultSet rs = st.executeQuery();
                 List<Assignment> result = new ArrayList<>();
                 while (rs.next()) {
@@ -262,10 +276,10 @@ public class AssignmentManagerImpl implements AssignmentManager {
         AgentManagerImpl am = new AgentManagerImpl(this.dataSource);
         MissionManagerImpl mm = new MissionManagerImpl(this.dataSource);
 
-        //miesto indexu pouzivame nazov stlpca, je to prehladnejsie, pytame sa fciu konkretne nazov typu kt stlpec je
+        //miesto indexu pouzivame nazov stlpca, je to prehladnejsie, pytame sa funkciu konkretne nazov typu kt stlpec je
         assignment.setId(rs.getLong("id"));
-        assignment.setFrom(ZonedDateTime.ofInstant(rs.getDate("from").toInstant(),ZoneId.systemDefault()));
-        assignment.setTo(ZonedDateTime.ofInstant(rs.getDate("to").toInstant(),ZoneId.systemDefault()));
+        assignment.setFrom(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("starts").getTime()).toInstant(), ZoneId.of("UTC")));
+        assignment.setTo(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("ends").getTime()).toInstant(), ZoneId.of("UTC")));
         assignment.setAgent(am.getAgent(rs.getLong("agentId")));
         assignment.setMission(mm.getMission(rs.getLong("missionId")));
         return assignment;

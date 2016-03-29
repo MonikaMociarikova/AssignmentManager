@@ -1,33 +1,7 @@
 ----------------------------------------------------------------
-Tue Mar 29 16:21:29 CEST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0153-c2c0-3275-000006600f08 
+Wed Mar 30 01:43:12 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0153-c4c2-7704-00000622bb30 
 on database directory memory:/home/matej/Documents/PV168/AssignmentManager/AssignmentManagerTest with class loader sun.misc.Launcher$AppClassLoader@6bc7c054 
-Loaded from file:/home/matej/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_77-b03
-user.dir=/home/matej/Documents/PV168/AssignmentManager
-os.name=Linux
-os.arch=amd64
-os.version=3.19.0-56-generic
-derby.system.home=null
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Tue Mar 29 16:21:29 CEST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 0d0600d0-0153-c2c0-3275-000006600f08 
-on database directory memory:/home/matej/Documents/PV168/AssignmentManager/MissionManagerTest with class loader sun.misc.Launcher$AppClassLoader@6bc7c054 
-Loaded from file:/home/matej/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
-java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_77-b03
-user.dir=/home/matej/Documents/PV168/AssignmentManager
-os.name=Linux
-os.arch=amd64
-os.version=3.19.0-56-generic
-derby.system.home=null
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Tue Mar 29 16:21:30 CEST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance 9dcf0239-0153-c2c0-3275-000006600f08 
-on database directory memory:/home/matej/Documents/PV168/AssignmentManager/AgentManagerTest with class loader sun.misc.Launcher$AppClassLoader@6bc7c054 
 Loaded from file:/home/matej/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_77-b03
