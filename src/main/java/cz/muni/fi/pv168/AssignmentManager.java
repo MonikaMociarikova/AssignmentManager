@@ -27,6 +27,8 @@ public interface AssignmentManager {
 
     List<Assignment> findAssignmentsOfMission(Mission mission);
 
-    List<Agent> findAgentsOnAssignment(Assignment assignment);
+    Agent findAgentOnAssignment(Assignment assignment);
+
+    public List<Assignment> findActualAssignmentOfAgent(Agent agent);
 
 }
