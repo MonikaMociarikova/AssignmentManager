@@ -188,14 +188,13 @@ public class MissionManagerImplTest {
     @Test
     public void testGetMission() {
 
-        //uz overene v createMission
         Mission mission = newMissionOneParameter("France");
         missionManager.createMission(mission);
 
         Long missionId = mission.getId();
         Mission loadedMission = missionManager.getMission(missionId);
 
-        assertThat("",loadedMission,is(equalTo(mission)));
+        assertThat("Mission and loaded mission differ.",loadedMission,is(equalTo(mission)));
         assertDeepEquals(mission,loadedMission);
     }
 

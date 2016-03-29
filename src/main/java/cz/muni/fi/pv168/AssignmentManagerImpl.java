@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.sql.DataSource;
+
+import cz.muni.fi.pv168.common.ServiceFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,13 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if (assignment.getTo().compareTo(assignment.getFrom()) < 0) {
             throw new IllegalArgumentException("Wrong time attibutes.");
         }
+        if (assignment.getAgent().getId() == null) {
+            throw new IllegalArgumentException("Assignment's agent id is null.");
+        }
+        if (assignment.getMission().getId() == null) {
+            throw new IllegalArgumentException("Assignment's mission id is null.");
+        }
+
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("INSERT INTO assignment (from,to,agentId,missionId) VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {

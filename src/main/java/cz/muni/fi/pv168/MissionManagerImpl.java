@@ -1,5 +1,6 @@
 package cz.muni.fi.pv168;
 
+import cz.muni.fi.pv168.common.ServiceFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

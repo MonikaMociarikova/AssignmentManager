@@ -1,13 +1,13 @@
 ----------------------------------------------------------------
-Wed Mar 23 11:08:06 CET 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0153-a2f2-10f1-000006631f30 
-on database directory memory:/home/matej/Documents/PV168/AssignmentManager/AgentManagerTest with class loader sun.misc.Launcher$AppClassLoader@6bc7c054 
-Loaded from file:/home/matej/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
+Tue Mar 29 20:56:14 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0153-c3bb-bde4-000006454148 
+on database directory memory:C:\Users\MONNY\Dropbox\magister2\seminarJava\zdielane\AssignmentManager\AssignmentManagerTest with class loader sun.misc.Launcher$AppClassLoader@15db9742 
+Loaded from file:/C:/Users/MONNY/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_74-b02
-user.dir=/home/matej/Documents/PV168/AssignmentManager
-os.name=Linux
+java.runtime.version=1.8.0_73-b02
+user.dir=C:\Users\MONNY\Dropbox\magister2\seminarJava\zdielane\AssignmentManager
+os.name=Windows 7
 os.arch=amd64
-os.version=3.19.0-56-generic
+os.version=6.1
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
