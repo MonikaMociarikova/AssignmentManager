@@ -99,6 +99,9 @@ public class AgentManagerImpl implements AgentManager {
         if (agent == null) {
             throw new IllegalArgumentException("Agent is null.");
         }
+        if(agent.getId()==null){
+            throw new IllegalArgumentException("Agent id is null.");
+        }
         try (Connection conn = dataSource.getConnection()){
             try (PreparedStatement st = conn.prepareStatement("DELETE FROM agent WHERE id=?")){
                 st.setLong(1,agent.getId());
@@ -132,6 +135,9 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public Agent getAgent(Long id) throws ServiceFailureException {
+        if(id==null){
+            throw new IllegalArgumentException("getAgent id is null");
+        }
         try (Connection conn = dataSource.getConnection()){
             try (PreparedStatement st = conn.prepareStatement("SELECT id,name,born FROM agent WHERE id=?")){
                 st.setLong(1, id);

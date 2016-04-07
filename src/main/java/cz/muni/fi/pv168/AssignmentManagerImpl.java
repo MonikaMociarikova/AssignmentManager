@@ -14,6 +14,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import cz.muni.fi.pv168.common.ServiceFailureException;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +27,15 @@ public class AssignmentManagerImpl implements AssignmentManager {
 
     final static Logger log = LoggerFactory.getLogger(AssignmentManagerImpl.class);
     private final DataSource dataSource;
+    private AgentManagerImpl am;
+    private MissionManagerImpl mm;
 
     public AssignmentManagerImpl(DataSource dataSource) {
         this.dataSource = dataSource;
+        am = new AgentManagerImpl(dataSource);
+        mm =  new MissionManagerImpl(dataSource);
     }
-
+    
     @Override
     public void createAssignment(Assignment assignment) {
         if (assignment == null) {
@@ -56,14 +62,23 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if (assignment.getMission().getId() == null) {
             throw new IllegalArgumentException("Assignment's mission id is null.");
         }
+        if(am.getAgent(assignment.getAgent().getId())==null){
+            throw new IllegalArgumentException("Agent not in db.");
+        }
+        if(mm.getMission(assignment.getMission().getId())==null){
+            throw new IllegalArgumentException("Mission not in db.");
+        }
+        
 
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("INSERT INTO assignment (starts,ends,agentId,missionId) VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
-                st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
-                st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
+                //st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
+                //st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
                 st.setLong(3, assignment.getAgent().getId());
                 st.setLong(4, assignment.getMission().getId());
+                st.setTimestamp(1, new java.sql.Timestamp(Timestamp.from(assignment.getFrom().toInstant()).getTime()));
+                st.setTimestamp(2, new java.sql.Timestamp(Timestamp.from(assignment.getTo().toInstant()).getTime()));
                 int addedRows = st.executeUpdate();
                 if (addedRows != 1) {
                     throw new ServiceFailureException("Internal Error: more rows inserted when trying to insert assignment " + assignment);
@@ -115,14 +130,16 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if ((assignment.getFrom() == null) || (assignment.getTo() == null)) {
             throw new IllegalArgumentException("Assignment contains no date boundary.");
         }
-        if (assignment.getFrom().isAfter(assignment.getTo())) {
-            throw new IllegalArgumentException("Assignment contains wrong date boundaries.");
-        }
+        //if (assignment.getFrom().isAfter(assignment.getTo())) {
+        //    throw new IllegalArgumentException("Assignment contains wrong date boundaries.");
+        //}
 
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("UPDATE assignment SET starts=?,ends=?,agentId=?,missionId=? WHERE id=?")) {
-                st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
-                st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
+                //st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
+                //st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
+                st.setTimestamp(1, new java.sql.Timestamp(Timestamp.from(assignment.getFrom().toInstant()).getTime()));
+                st.setTimestamp(2, new java.sql.Timestamp(Timestamp.from(assignment.getTo().toInstant()).getTime()));
                 st.setLong(3, assignment.getAgent().getId());
                 st.setLong(4, assignment.getMission().getId());
                 st.setLong(5, assignment.getId());
@@ -278,8 +295,11 @@ public class AssignmentManagerImpl implements AssignmentManager {
 
         //miesto indexu pouzivame nazov stlpca, je to prehladnejsie, pytame sa funkciu konkretne nazov typu kt stlpec je
         assignment.setId(rs.getLong("id"));
-        assignment.setFrom(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("starts").getTime()).toInstant(), ZoneId.of("UTC")));
-        assignment.setTo(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("ends").getTime()).toInstant(), ZoneId.of("UTC")));
+        //assignment.setFrom(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("starts").getTime()).toInstant(), ZoneId.of("UTC")));
+        //assignment.setTo(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("ends").getTime()).toInstant(), ZoneId.of("UTC")));
+        assignment.setFrom(ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getTimestamp("starts").getTime()),ZoneOffset.UTC));
+        assignment.setTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getTimestamp("ends").getTime()),ZoneOffset.UTC));
+
         assignment.setAgent(am.getAgent(rs.getLong("agentId")));
         assignment.setMission(mm.getMission(rs.getLong("missionId")));
         return assignment;

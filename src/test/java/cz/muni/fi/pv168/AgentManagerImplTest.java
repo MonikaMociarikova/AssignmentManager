@@ -90,6 +90,11 @@ public class AgentManagerImplTest {
         Agent agent = newAgent("James Bond", null);
         manager.createAgent(agent);
     }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void getNullAgent() throws Exception {
+        Agent agent = manager.getAgent(null);
+    }
 
     @Test
     public void getAllAgents() {

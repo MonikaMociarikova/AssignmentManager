@@ -195,15 +195,7 @@ public class AssignmentManagerImplTest {
         manager.createAssignment(assignment);
     }
 
-    @Test
-    public void testUpdateAssignment() throws Exception {
-
-    }
-
-    @Test
-    public void testDeleteAssignment() throws Exception {
-
-    }
+    
     
     @Test(expected = IllegalArgumentException.class)
     public void testGetAssignmentWithNullId() {
@@ -222,15 +214,6 @@ public class AssignmentManagerImplTest {
         //assertDeepEquals(ass1, loadedAssignment);
     }
 
-    @Test
-    public void testFindAllAssignments() throws Exception {
-
-    }
-
-    @Test
-    public void testFindAssignmentsOfAgent() throws Exception {
-
-    }
 
     @Test
     public void testFindAssignmentsOfMission() throws Exception {

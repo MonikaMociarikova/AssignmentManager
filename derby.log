@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Wed Mar 30 01:43:12 CEST 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0153-c4c2-7704-00000622bb30 
+Thu Apr 07 10:28:38 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0153-efd6-636c-00000622d7a8 
 on database directory memory:/home/matej/Documents/PV168/AssignmentManager/AssignmentManagerTest with class loader sun.misc.Launcher$AppClassLoader@6bc7c054 
 Loaded from file:/home/matej/.m2/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
