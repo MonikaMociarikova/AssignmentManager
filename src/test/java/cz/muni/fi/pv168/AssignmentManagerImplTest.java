@@ -57,11 +57,6 @@ public class AssignmentManagerImplTest {
 
     @After
     public void tearDown() throws Exception {
-        /*try (Connection con = ds.getConnection()) {
-            con.prepareStatement("DROP TABLE assignment").executeUpdate();
-            con.prepareStatement("DROP TABLE mission").executeUpdate();
-            con.prepareStatement("DROP TABLE agent").executeUpdate();
-        }*/
         DBUtils.executeSqlScript(ds, AssignmentManager.class.getResource("DropTables.sql"));
     }
 
@@ -211,7 +206,6 @@ public class AssignmentManagerImplTest {
 
         assertThat("Assignment and loaded assignment differ.", loadedAssignment, is(equalTo(ass1)));
         assertThat(loadedAssignment).isEqualToComparingFieldByField(ass1);
-        //assertDeepEquals(ass1, loadedAssignment);
     }
 
 
@@ -230,11 +224,11 @@ public class AssignmentManagerImplTest {
 
         List<Assignment> listForM1 = new ArrayList<>();
         listForM1.add(ass1);
+        listForM1.add(ass3);
         assertThat(manager.findAssignmentsOfMission(m1)).isEqualTo(listForM1);
 
         List<Assignment> listForM2 = new ArrayList<>();
-        listForM2.add(ass1);
-        listForM2.add(ass3);
+        listForM2.add(ass2);
         assertThat(manager.findAssignmentsOfMission(m2)).isEqualTo(listForM2);
 
     }
@@ -286,39 +280,61 @@ public class AssignmentManagerImplTest {
 
         List<Assignment> listForAg3 = new ArrayList<>();
         listForAg3.add(ass4);
+        listForAg3.add(ass5);
         assertThat(manager.findActualAssignmentOfAgent(ag3)).isEqualTo(listForAg3);
     }
 
-    /*
-    private static Assignment newAssignment(ZonedDateTime from, ZonedDateTime to, Agent agent, Mission mission) {
-        Assignment assignment = new Assignment();
-        assignment.setFrom(from);
-        assignment.setTo(to);
-        assignment.setAgent(agent);
-        assignment.setMission(mission);
-        return assignment;
+    @Test(expected = IllegalArgumentException.class)
+    public void testFindActualAssignmentOfNullAgent() throws Exception {
+        manager.findActualAssignmentOfAgent(null);
     }
 
-    private void assertDeepEquals(List<Assignment> expectedList, List<Assignment> actualList) {
-        for (int i = 0; i < expectedList.size(); i++) {
-            Assignment expected = expectedList.get(i);
-            Assignment actual = actualList.get(i);
-            assertDeepEquals(expected, actual);
-        }
-    }
-     */
- /*  private void assertDeepEquals(Assignment expected, Assignment actual) {
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getFrom(), actual.getFrom());
-        assertEquals(expected.getTo(), actual.getTo());
-        assertEquals(expected.getAgent(), actual.getAgent());
-        assertEquals(expected.getMission(), actual.getMission());
-    }*/
 
- /* private static Comparator<Assignment> idComparator = new Comparator<Assignment>() {
-        @Override
-        public int compare(Assignment o1, Assignment o2) {
-            return o1.getId().compareTo(o2.getId());
-        }
-    };*/
+    @Test
+    public void testFindAssignmentsOfAgent() throws Exception {
+
+        assertThat(manager.findAssignmentsOfAgent(ag1)).isEmpty();
+        assertThat(manager.findAssignmentsOfAgent(ag2)).isEmpty();
+        assertThat(manager.findAssignmentsOfAgent(ag3)).isEmpty();
+        Agent a4 = new AgentBuilder().name("Pomstitel").born(LocalDate.of(1965, 11, 23)).build();
+        agentManager.createAgent(a4);
+
+        manager.createAssignment(ass1);
+        manager.createAssignment(ass2);
+        manager.createAssignment(ass3);
+        manager.createAssignment(ass4);
+        manager.createAssignment(ass5);
+
+        assertThat(manager.findAssignmentsOfAgent(a4))
+                .isEmpty();
+        assertThat(manager.findAssignmentsOfAgent(ag1))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(ass1,ass2);
+        assertThat(manager.findAssignmentsOfAgent(ag2))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(ass3);
+        assertThat(manager.findAssignmentsOfAgent(ag3))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(ass4,ass5);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFindAssignmentsOfNullAgent() throws Exception {
+        manager.findAssignmentsOfAgent(null);
+    }
+
+/*
+    void updateAssignment(Assignment assignment);
+
+    void deleteAssignment(Assignment assignment);
+
+    List<Assignment> findAllAssignments();
+
+    Este dorobit : delete, uodate, findAll testy
+    zona by mala byt volitelna
+    osetrenie nullov a prezretie podmienok
+    odstranenie duplicitneh kodu?
+
+*/
 }

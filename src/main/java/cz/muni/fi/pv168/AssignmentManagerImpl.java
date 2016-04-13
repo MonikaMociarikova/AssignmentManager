@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pv168;
 
+import java.lang.reflect.Type;
 import java.sql.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -51,7 +52,7 @@ public class AssignmentManagerImpl implements AssignmentManager {
             throw new IllegalArgumentException("Assignment mission is null.");
         }
         if (assignment.getFrom() == null) {
-            assignment.setFrom(ZonedDateTime.now(/*ZoneId.systemDefault()*/));
+            assignment.setFrom(ZonedDateTime.now());
         }
         if (assignment.getTo().compareTo(assignment.getFrom()) < 0) {
             throw new IllegalArgumentException("Wrong time attibutes.");
@@ -73,8 +74,6 @@ public class AssignmentManagerImpl implements AssignmentManager {
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("INSERT INTO assignment (starts,ends,agentId,missionId) VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
-                //st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
-                //st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
                 st.setLong(3, assignment.getAgent().getId());
                 st.setLong(4, assignment.getMission().getId());
                 st.setTimestamp(1, new java.sql.Timestamp(Timestamp.from(assignment.getFrom().toInstant()).getTime()));
@@ -130,14 +129,12 @@ public class AssignmentManagerImpl implements AssignmentManager {
         if ((assignment.getFrom() == null) || (assignment.getTo() == null)) {
             throw new IllegalArgumentException("Assignment contains no date boundary.");
         }
-        //if (assignment.getFrom().isAfter(assignment.getTo())) {
-        //    throw new IllegalArgumentException("Assignment contains wrong date boundaries.");
-        //}
+        if (assignment.getFrom().isAfter(assignment.getTo())) {
+            throw new IllegalArgumentException("Assignment contains wrong date boundaries.");
+        }
 
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("UPDATE assignment SET starts=?,ends=?,agentId=?,missionId=? WHERE id=?")) {
-                //st.setDate(1, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
-                //st.setDate(2, new java.sql.Date(Date.from(assignment.getFrom().toInstant()).getTime()));
                 st.setTimestamp(1, new java.sql.Timestamp(Timestamp.from(assignment.getFrom().toInstant()).getTime()));
                 st.setTimestamp(2, new java.sql.Timestamp(Timestamp.from(assignment.getTo().toInstant()).getTime()));
                 st.setLong(3, assignment.getAgent().getId());
@@ -219,6 +216,9 @@ public class AssignmentManagerImpl implements AssignmentManager {
 
     @Override
     public List<Assignment> findAssignmentsOfAgent(Agent agent) {
+        if (agent == null) {
+            throw new IllegalArgumentException("agent is null");
+        }
         log.debug("Finding all assignments");
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment WHERE agentId=?")) {
@@ -271,6 +271,9 @@ public class AssignmentManagerImpl implements AssignmentManager {
 
     @Override
     public List<Assignment> findActualAssignmentOfAgent(Agent agent) {
+        if (agent == null) {
+            throw new IllegalArgumentException("agent is null");
+        }
         log.debug("Finding all assignments");
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("SELECT id,starts,ends,agentId,missionId FROM assignment WHERE agentId=?")) {
@@ -295,10 +298,8 @@ public class AssignmentManagerImpl implements AssignmentManager {
 
         //miesto indexu pouzivame nazov stlpca, je to prehladnejsie, pytame sa funkciu konkretne nazov typu kt stlpec je
         assignment.setId(rs.getLong("id"));
-        //assignment.setFrom(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("starts").getTime()).toInstant(), ZoneId.of("UTC")));
-        //assignment.setTo(ZonedDateTime.ofInstant(new java.util.Date(rs.getDate("ends").getTime()).toInstant(), ZoneId.of("UTC")));
-        assignment.setFrom(ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getTimestamp("starts").getTime()),ZoneOffset.UTC));
-        assignment.setTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getTimestamp("ends").getTime()),ZoneOffset.UTC));
+        assignment.setFrom(ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getTimestamp("starts").getTime()),ZoneId.of("UTC")));
+        assignment.setTo(ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getTimestamp("ends").getTime()),ZoneId.of("UTC")));
 
         assignment.setAgent(am.getAgent(rs.getLong("agentId")));
         assignment.setMission(mm.getMission(rs.getLong("missionId")));
